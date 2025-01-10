@@ -13,9 +13,9 @@ router.post('/signup', async (req, res) => {
             username: result.username
         }
         jwttoken = jwtgeneratetoken(payload)
-        res.status(201).json({ message: 'Person saved successfully', data: result, token: jwttoken });
+        return res.status(201).json({ message: 'Person saved successfully', data: result, token: jwttoken });
     } catch (error) {
-        res.status(500).json({ message: 'Error saving person', error: error.message });
+        return res.status(500).json({ message: 'Error saving person', error: error.message });
     }
 
 })
@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
         const { username, password } = req.body
         prsn = await person.findOne({ username: username })
         if (!prsn) {
-            res.status(401).json({ message: 'Invalid username', error: error.message });
+            return res.status(401).json({ message: 'Invalid username', error: error.message });
         }
         pass = await prsn.comparePassword(password)
         if (pass) {
@@ -34,14 +34,14 @@ router.post('/login', async (req, res) => {
                 username: prsn.username
             }
             jwttoken = jwtgeneratetoken(payload)
-            res.status(201).json({ token: jwttoken });
+            return res.status(201).json({ token: jwttoken });
         }
         else {
-            res.status(401).json({ message: 'Invalid password', error: error.message });
+            return res.status(401).json({ message: 'Invalid password', error: error.message });
         }
 
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err })
+        return res.status(500).json({ message: "Internal server error", error: err })
     }
 
 })
@@ -51,11 +51,11 @@ router.get('/', jwtAuthMiddleware, async (req, res) => {
     try {
         const data = await person.find()
         console.log('person fetch successful')
-        res.status(200).json({ data })
+        return res.status(200).json({ data })
 
     } catch (error) {
         console.log('person fetch unsuccessful')
-        res.status(500).json('Internal Server Error')
+        return res.status(500).json('Internal Server Error')
     }
 })
 
@@ -64,11 +64,11 @@ router.get('/profile', jwtAuthMiddleware, async (req, res) => {
         userdata = req.user
         const data = await person.findById(userdata.id)
         console.log('person fetch successful')
-        res.status(200).json(data)
+        return res.status(200).json(data)
 
     } catch (error) {
         console.log('person fetch unsuccessful')
-        res.status(500).json('Internal Server Error')
+        return res.status(500).json('Internal Server Error')
     }
 })
 router.get('/:name', async (req, res) => {
@@ -76,11 +76,11 @@ router.get('/:name', async (req, res) => {
         namegiven = req.params.name
         const data = await person.find({ name: namegiven })
         console.log('person fetch successful')
-        res.status(200).json({ data })
+        return res.status(200).json({ data })
 
     } catch (error) {
         console.log('person fetch unsuccessful')
-        res.status(500).json('Internal Server Error')
+        return res.status(500).json('Internal Server Error')
     }
 })
 router.put('/:id', async (req, res) => {
@@ -93,13 +93,13 @@ router.put('/:id', async (req, res) => {
 
         })
         if (!responsemsg) {
-            res.status(201).json('Person not found')
+            return res.status(201).json('Person not found')
         }
         else {
-            res.status(201).json({ responsemsg });
+            return res.status(201).json({ responsemsg });
         }
     } catch (error) {
-        res.status(500).json({ message: 'Error saving person', error: error.message });
+        return res.status(500).json({ message: 'Error saving person', error: error.message });
     }
 })
 router.delete('/:id', async (req, res) => {
@@ -107,13 +107,13 @@ router.delete('/:id', async (req, res) => {
         givenid = req.params.id
         responsemsg = await person.findByIdAndDelete(givenid)
         if (!responsemsg) {
-            res.status(201).json('Person not found')
+            return res.status(201).json('Person not found')
         }
         else {
-            res.status(201).json('Person deleted successfully');
+            return res.status(201).json('Person deleted successfully');
         }
     } catch (error) {
-        res.status(500).json({ message: 'Error saving person', error: error.message });
+        return res.status(500).json({ message: 'Error saving person', error: error.message });
     }
 })
 module.exports = router
